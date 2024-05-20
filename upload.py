@@ -4,7 +4,7 @@ from flask import Flask, render_template, request
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from keras.preprocessing.image import load_img
 # the pretrained model
-from model import process_image, predict_class
+from model import  predict_class
 
 app = Flask(__name__)
 
@@ -27,14 +27,14 @@ def upload():
         # save the image
         filename = photos.save(request.files['photo'])
         # load the image
-        image = load_img('./static/img/'+filename, target_size=(224, 224))
-        # process the image
-        image = process_image(image)
+        image = load_img('./static/img/'+filename )
         # make prediction
-        prediction, percentage = predict_class(image)
+        x = predict_class(image)
+        # prediction, percentage = predict_class(image)
         # the answer which will be rendered back to the user
-        answer = "For {} : <br>The prediction is : {} <br>With probability = {}".format(filename, prediction, percentage)
-        return answer
+        # answer = "For {} : <br>The prediction is : {} <br>With probability = {}".format(filename, prediction, percentage)
+        # return answer
+        return {"result" : 0}
     # web page to show before the POST request containing the image
     return render_template('upload.html')
 

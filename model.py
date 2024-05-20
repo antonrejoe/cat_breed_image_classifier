@@ -1,45 +1,46 @@
-import tensorflow as tf
-from keras.models import load_model
-from keras.preprocessing.image import load_img
-from keras.preprocessing.image import img_to_array
-from keras.applications.vgg19 import preprocess_input
-from keras.applications.vgg19 import decode_predictions
+import torch
+from transformers import AutoImageProcessor, AutoModelForImageClassification
+from PIL import Image
 
-model = tf.keras.models.load_model('./weights/my_model.h5', compile=False)
+# Load the processor and model
+processor = AutoImageProcessor.from_pretrained("dima806/cat_breed_image_detection")
+model = AutoModelForImageClassification.from_pretrained("dima806/cat_breed_image_detection")
 
-def process_image(image):
-    '''
-    Make an image ready-to-use by VGG19
-    '''
-    # convert the image pixels to a numpy array
-    image = img_to_array(image)
-    # reshape data for the model
-    image = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))
-    # prepare the image for the VGG model
-    image = preprocess_input(image)
-
-    return image
-
-def predict_class(image):
+def predict_class(image_path):
     '''
     Predict and render the class of a given image 
     '''
-    # predict the probability across all output classes
-    yhat = model.predict(image)
-    # convert the probabilities to class labels
-    label = decode_predictions(yhat)
-    # retrieve the most likely result, e.g. highest probability
-    label = label[0][0]
-    # return the classification
-    prediction = label[1]
-    percentage = '%.2f%%' % (label[2]*100)
+    # Open and process the image
+    image = Image.open(image_path).convert('RGB')
+    inputs = processor(images=image, return_tensors="pt")
 
-    return prediction, percentage
+    # Predict the probability across all output classes
+    with torch.no_grad():
+        outputs = model(**inputs)
+
+    # Get the logits (predictions)
+    logits = outputs.logits
+    predicted_class_idx = logits.argmax(-1).item()
+
+    # Get the labels
+    labels = model.config.id2label
+    predicted_label = labels[predicted_class_idx]
+
+    # Get the probability
+    probabilities = torch.nn.functional.softmax(logits, dim=-1)
+    predicted_probability = probabilities[0, predicted_class_idx].item()
+
+    # Print results
+    print(f"Logits: {logits}")
+    print(f"Predicted class index: {predicted_class_idx}")
+    print(f"Predicted class label: {predicted_label}")
+    print(f"Predicted class probability: {predicted_probability:.4f}")
+
+    return predicted_label, predicted_probability
 
 if __name__ == '__main__':
-    ''' for test'''
-    # load an image from file
-    image = load_img('../image.jpg', target_size=(224, 224))
-    image = process_image(image)
-    prediction, percentage = predict_class(image)
-    print(prediction, percentage)
+    ''' For test '''
+    # Load an image from file
+    image_path = "static/img/image.jpg"
+    prediction, percentage = predict_class(image_path)
+    print(f"Prediction: {prediction}, Probability: {percentage:.4f}")
