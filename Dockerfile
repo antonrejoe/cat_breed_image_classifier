@@ -1,13 +1,18 @@
-# Specify your base image
-FROM python:3.7.3-stretch
-# create a work directory
+# start by pulling the python image
+FROM python:3.11
+
+# switch working directory
 RUN mkdir /app
-# navigate to this work directory
+
 WORKDIR /app
-#Copy all files
+
+
+# copy every content from the local file to the image
 COPY . .
-# Install dependencies
+
 RUN python -m pip install --upgrade pip
+
 RUN pip install -r requirements.txt
-# Run
-CMD ["python","upload.py"]
+# configure the container to run in an executed manner
+
+CMD ["python","upload.py" ]
