@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cat-face.svg') }}" type="image/x-icon">
 </head>
-<body>
+<body > 
+    <h1>Cat breed Classifier</h1>
     <div class="container">
+        <p>Upload an image here</p>
         <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload') }}" onsubmit="showLoading()">
             <input type="file" name="photo" required>
             <input type="submit" value="Upload">
@@ -16,6 +19,11 @@
             <p>Loading...</p>
         </div>
     </div>
+
+    <footer>
+        For more info 
+        <a href="https://github.com/antonrejoe/cat_breed_image_classifier" target="_blank">repo link</a>
+    </footer>
 
     <script>
         function showLoading() {
