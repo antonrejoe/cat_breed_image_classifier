@@ -31,9 +31,12 @@ def upload():
         # make prediction
         label, probability = predict_class(image)
         # Redirect to the result page with the prediction results
-        return redirect(url_for('result', label=label, probability=probability, filename=filename))
+        # return redirect(url_for('result', label=label, probability=probability, filename=filename))
+        return {"result": label , "probability": probability }
     # web page to show before the POST request containing the image
     return render_template('upload.html')
+
+    
 
 @app.route('/result')
 def result():
